@@ -63,37 +63,68 @@ class _BudgetTabState extends ConsumerState<BudgetTab> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Budget: ${formatCurrency(budget, currencyCode: summaryCurrency)}',
+                Text('Budget: ', style: Theme.of(context).textTheme.bodyLarge),
+                _AnimatedCurrencyText(
+                  amount: budget,
+                  currencyCode: summaryCurrency,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Spent: ${formatCurrency(spent, currencyCode: summaryCurrency)}',
+                Text('Spent: ', style: Theme.of(context).textTheme.bodyLarge),
+                _AnimatedCurrencyText(
+                  amount: spent,
+                  currencyCode: summaryCurrency,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Remaining: ${formatCurrency(remaining, currencyCode: summaryCurrency)}',
-                  style: TextStyle(
-                    color: remaining < 0
-                        ? Colors.red.shade700
-                        : Colors.green.shade700,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Remaining: ',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Expanded(
+                      child: _AnimatedCurrencyText(
+                        amount: remaining,
+                        currencyCode: summaryCurrency,
+                        style: TextStyle(
+                          color: remaining < 0
+                              ? Colors.red.shade700
+                              : Colors.green.shade700,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(99),
-                  child: LinearProgressIndicator(
-                    value: usage,
-                    minHeight: 10,
-                    backgroundColor: const Color(0xFFD7D9CF),
-                    color: usage > 1
-                        ? const Color(0xFFAA3F2E)
-                        : const Color(0xFF2F6A5A),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: usage),
+                    duration: const Duration(milliseconds: 850),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, animatedUsage, _) {
+                      return LinearProgressIndicator(
+                        value: animatedUsage,
+                        minHeight: 10,
+                        backgroundColor: const Color(0xFFD7D9CF),
+                        color: usage > 1
+                            ? const Color(0xFFAA3F2E)
+                            : const Color(0xFF2F6A5A),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('${(usage * 100).toStringAsFixed(1)}% budget used'),
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: usage * 100),
+                  duration: const Duration(milliseconds: 850),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, percent, _) {
+                    return Text('${percent.toStringAsFixed(1)}% budget used');
+                  },
+                ),
                 if (hasMixedCurrencies) ...[
                   const SizedBox(height: 8),
                   const Text(
@@ -156,6 +187,33 @@ class _BudgetTabState extends ConsumerState<BudgetTab> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AnimatedCurrencyText extends StatelessWidget {
+  const _AnimatedCurrencyText({
+    required this.amount,
+    required this.currencyCode,
+    this.style,
+  });
+
+  final double amount;
+  final String currencyCode;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: amount),
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOutCubic,
+      builder: (context, animatedAmount, _) {
+        return Text(
+          formatCurrency(animatedAmount, currencyCode: currencyCode),
+          style: style,
+        );
+      },
     );
   }
 }

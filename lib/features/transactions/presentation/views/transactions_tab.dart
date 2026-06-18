@@ -42,7 +42,22 @@ class TransactionsTab extends ConsumerWidget {
             itemCount: items.length,
             separatorBuilder: (_, index) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
-              return _TransactionTile(item: items[index]);
+              return TweenAnimationBuilder<double>(
+                key: ValueKey<String>(items[index].id),
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: Duration(milliseconds: 220 + (index * 45)),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, (1 - value) * 16),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _TransactionTile(item: items[index]),
+              );
             },
           ),
         );

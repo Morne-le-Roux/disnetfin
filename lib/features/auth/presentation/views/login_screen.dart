@@ -152,9 +152,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                                 validator: (value) {
                                   final input = value?.trim() ?? '';
-                                  if (input.isEmpty) return 'Email is required';
-                                  if (!input.contains('@'))
+                                  if (input.isEmpty) {
+                                    return 'Email is required';
+                                  }
+                                  if (!input.contains('@')) {
                                     return 'Enter a valid email';
+                                  }
                                   return null;
                                 },
                               ),
@@ -167,8 +170,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   prefixIcon: Icon(Icons.lock_outline_rounded),
                                 ),
                                 validator: (value) {
-                                  if ((value ?? '').isEmpty)
+                                  if ((value ?? '').isEmpty) {
                                     return 'Password is required';
+                                  }
                                   return null;
                                 },
                               ),

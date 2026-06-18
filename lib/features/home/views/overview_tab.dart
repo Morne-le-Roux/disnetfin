@@ -40,7 +40,8 @@ class OverviewTab extends ConsumerWidget {
                 Expanded(
                   child: _MetricCard(
                     label: 'Spent',
-                    value: formatCurrency(spent, currencyCode: summaryCurrency),
+                    amount: spent,
+                    currencyCode: summaryCurrency,
                     tone: const Color(0xFFAA3F2E),
                   ),
                 ),
@@ -48,10 +49,8 @@ class OverviewTab extends ConsumerWidget {
                 Expanded(
                   child: _MetricCard(
                     label: 'Income',
-                    value: formatCurrency(
-                      income,
-                      currencyCode: summaryCurrency,
-                    ),
+                    amount: income,
+                    currencyCode: summaryCurrency,
                     tone: const Color(0xFF2F6A5A),
                   ),
                 ),
@@ -63,10 +62,8 @@ class OverviewTab extends ConsumerWidget {
                 Expanded(
                   child: _MetricCard(
                     label: 'Budget',
-                    value: formatCurrency(
-                      budget,
-                      currencyCode: summaryCurrency,
-                    ),
+                    amount: budget,
+                    currencyCode: summaryCurrency,
                     tone: const Color(0xFF2D4F75),
                   ),
                 ),
@@ -74,10 +71,8 @@ class OverviewTab extends ConsumerWidget {
                 Expanded(
                   child: _MetricCard(
                     label: 'Remaining',
-                    value: formatCurrency(
-                      remaining,
-                      currencyCode: summaryCurrency,
-                    ),
+                    amount: remaining,
+                    currencyCode: summaryCurrency,
                     tone: remaining < 0
                         ? const Color(0xFFAA3F2E)
                         : const Color(0xFF2F6A5A),
@@ -99,19 +94,33 @@ class OverviewTab extends ConsumerWidget {
                     const SizedBox(height: 14),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(99),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 10,
-                        backgroundColor: const Color(0xFFD7D9CF),
-                        color: progress > 1
-                            ? const Color(0xFFAA3F2E)
-                            : const Color(0xFF2F6A5A),
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0, end: progress),
+                        duration: const Duration(milliseconds: 850),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, animatedProgress, _) {
+                          return LinearProgressIndicator(
+                            value: animatedProgress,
+                            minHeight: 10,
+                            backgroundColor: const Color(0xFFD7D9CF),
+                            color: progress > 1
+                                ? const Color(0xFFAA3F2E)
+                                : const Color(0xFF2F6A5A),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${(progress * 100).toStringAsFixed(1)}% budget used',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: progress * 100),
+                      duration: const Duration(milliseconds: 850),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, percent, _) {
+                        return Text(
+                          '${percent.toStringAsFixed(1)}% budget used',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        );
+                      },
                     ),
                     if (hasMixedCurrencies) ...[
                       const SizedBox(height: 8),
@@ -148,12 +157,14 @@ class OverviewTab extends ConsumerWidget {
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
     required this.label,
-    required this.value,
+    required this.amount,
+    required this.currencyCode,
     required this.tone,
   });
 
   final String label;
-  final String value;
+  final double amount;
+  final String currencyCode;
   final Color tone;
 
   @override
@@ -166,12 +177,19 @@ class _MetricCard extends StatelessWidget {
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: tone,
-              ),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: amount),
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              builder: (context, animatedAmount, _) {
+                return Text(
+                  formatCurrency(animatedAmount, currencyCode: currencyCode),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: tone,
+                  ),
+                );
+              },
             ),
           ],
         ),
