@@ -16,6 +16,7 @@ dependencies:
   uuid: ^4.3.3
   flutter_bloc: ^9.1.1
   pocketbase: ^0.24.0
+  google_fonts: ^6.3.0
 
 dev_dependencies:
   flutter_test:
